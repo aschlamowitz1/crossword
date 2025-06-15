@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daddy's Father's Day Crossword</title>
+    <title>Daddy's Father's Day Crossword (MOBILE)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -67,7 +67,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            font-size: 1.2em;
+            font-size: 1.2em; /* Base font size for cells */
             font-weight: bold;
             text-transform: uppercase;
             color: #1a202c;
@@ -76,6 +76,17 @@
             outline: none;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
+
+        /* Adjust cell font size for smaller screens */
+        @media (max-width: 480px) {
+            .crossword-cell {
+                font-size: 1em; /* Slightly smaller for very small screens */
+            }
+            .crossword-cell .clue-number {
+                font-size: 0.5em; /* Adjust clue number size */
+            }
+        }
+
 
         .crossword-cell.active {
             background-color: #d1ead1; /* Light green highlight for active cell */
@@ -106,7 +117,7 @@
             width: 90%;
             height: 90%;
             text-align: center;
-            font-size: 1em;
+            font-size: 1em; /* Keep input font size relative to parent cell */
             font-weight: bold;
             text-transform: uppercase;
             border: none;
@@ -133,7 +144,18 @@
             flex: 1;
             min-width: 300px;
             max-width: 450px;
+            /* Add scrolling for clues on mobile if they overflow */
+            max-height: 400px; /* Limit height to prevent excessive scrolling on taller screens */
+            overflow-y: auto;
+            padding-right: 10px; /* Add some padding for scrollbar */
         }
+
+        @media (max-width: 767px) { /* Apply to mobile and small tablets */
+            #clues-section {
+                max-height: 30vh; /* Adjust height for smaller screens */
+            }
+        }
+
 
         .clue-list h3 {
             font-size: 1.15em;
@@ -151,8 +173,15 @@
 
         .clue-list li {
             margin-bottom: 8px;
-            font-size: 0.9em;
+            font-size: 0.9em; /* Base font size for clues */
             line-height: 1.4;
+        }
+
+        /* Adjust clue font size for smaller screens */
+        @media (max-width: 480px) {
+            .clue-list li {
+                font-size: 0.85em; /* Slightly smaller for very small screens */
+            }
         }
 
         .clue-list li.active-clue {
@@ -522,13 +551,28 @@
                                 nextRow--;
                             }
 
-                            // Check if the calculated previous cell is within bounds and an active cell
-                            if (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE && grid[nextRow][nextCol] !== null) {
+                            // Loop to find the previous *active* cell in the direction
+                            let foundPrev = false;
+                            while (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE) {
+                                if (grid[nextRow][nextCol] !== null) { // Check if it's an active cell (not blank)
+                                    foundPrev = true;
+                                    break;
+                                }
+                                if (currentWordOrientation === 'across') {
+                                    nextCol--;
+                                } else {
+                                    nextRow--;
+                                }
+                            }
+
+                            if (foundPrev) {
                                 const prevCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
                                 const prevInput = prevCellDiv.querySelector('input');
                                 if (prevInput) {
                                     prevInput.value = ''; // Clear the previous cell's value
                                     grid[nextRow][nextCol].char = ''; // Update the grid data
+                                    // Remove any easy mode feedback from the cleared cell
+                                    prevCellDiv.classList.remove('correct-easy-mode', 'incorrect-easy-mode');
                                     prevInput.focus(); // Move focus
                                     handleCellClick(nextRow, nextCol, prevInput); // Re-highlight the word
                                 }
