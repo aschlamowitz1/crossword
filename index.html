@@ -86,12 +86,20 @@
             background-color: #e8f5e8; /* Lighter green highlight for word */
         }
 
-        .crossword-cell.correct {
-            background-color: #c8e6c9; /* Pleasant green for correct */
+        /* Easy Mode specific colors */
+        .crossword-cell.correct-easy-mode {
+            background-color: #dcfce7; /* Lighter green for immediate correct feedback */
+        }
+        .crossword-cell.incorrect-easy-mode {
+            background-color: #fee2e2; /* Lighter red for immediate incorrect feedback */
         }
 
+        /* Check Answers button colors (more definitive) */
+        .crossword-cell.correct {
+            background-color: #a7f3d0; /* Pleasant green for correct */
+        }
         .crossword-cell.incorrect {
-            background-color: #fce8e8; /* Light red for incorrect */
+            background-color: #fca5a5; /* Light red for incorrect */
         }
 
         .crossword-cell input {
@@ -156,6 +164,8 @@
             display: flex;
             gap: 12px;
             margin-top: 20px;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            justify-content: center;
         }
 
         .btn {
@@ -219,6 +229,7 @@
                 <button id="check-answers-btn" class="btn btn-primary">Check Answers</button>
                 <button id="clear-grid-btn" class="btn btn-secondary">Clear Grid</button>
                 <button id="reveal-grid-btn" class="btn btn-secondary">Reveal All</button>
+                <button id="easy-mode-btn" class="btn btn-secondary">Easy Mode: OFF</button>
             </div>
             <div id="message-box" class="rounded-lg shadow-md mt-4"></div>
         </div>
@@ -244,6 +255,9 @@
             const clearGridBtn = document.getElementById('clear-grid-btn');
             const revealGridBtn = document.getElementById('reveal-grid-btn');
             const messageBox = document.getElementById('message-box');
+            const easyModeBtn = document.getElementById('easy-mode-btn');
+
+            let isEasyMode = false; // Initial state for easy mode
 
             // Define the crossword words and their properties
             // Coordinates have been adjusted for a more compact and interlocked visual appearance.
@@ -290,8 +304,10 @@
                         }
 
                         if (grid[r][c] === null) {
-                            grid[r][c] = { char: '', clueNum: null, orientations: [] };
+                            grid[r][c] = { char: '', correctChar: '', clueNum: null, orientations: [] }; // Added correctChar
                         }
+                        // Set the correct character for this cell
+                        grid[r][c].correctChar = word[i].toUpperCase();
 
                         // Mark clue number only at the start of a word
                         if (i === 0) {
@@ -445,13 +461,24 @@
             function handleInput(event, row, col) {
                 let char = event.target.value.toUpperCase();
                 if (char.length > 1) {
-                    char = char.charAt(0); // Take only the first character
+                    char = char.charAt(0);
                     event.target.value = char;
                 }
-                grid[row][col].char = char;
+                grid[row][col].char = char; // Update user's typed character
 
-                // Auto-advance to the next cell in the current word's direction
-                if (char) { // Only advance if a character was actually typed
+                const cellDiv = gridContainer.children[row * GRID_SIZE + col];
+                // Remove all feedback classes before applying new ones
+                cellDiv.classList.remove('correct-easy-mode', 'incorrect-easy-mode', 'correct', 'incorrect');
+
+                if (isEasyMode && char) {
+                    if (char === grid[row][col].correctChar) {
+                        cellDiv.classList.add('correct-easy-mode');
+                    } else {
+                        cellDiv.classList.add('incorrect-easy-mode');
+                    }
+                }
+
+                if (char) {
                     moveToNextCell(row, col, currentWordOrientation);
                 }
             }
@@ -581,6 +608,11 @@
             // Button Event Listeners
             checkAnswersBtn.addEventListener('click', () => {
                 let allCorrect = true;
+                // Clear all prior feedback first (including easy mode)
+                document.querySelectorAll('.crossword-cell').forEach(cell => {
+                    cell.classList.remove('correct', 'incorrect', 'correct-easy-mode', 'incorrect-easy-mode');
+                });
+
                 words.forEach(wordObj => {
                     const { word, orientation, start } = wordObj;
                     let userAnswer = '';
@@ -603,7 +635,6 @@
                         c = start.col;
                         for (let i = 0; i < word.length; i++) {
                             const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                            cellDiv.classList.remove('incorrect');
                             cellDiv.classList.add('correct');
                             if (orientation === 'across') {
                                 c++;
@@ -618,7 +649,6 @@
                         c = start.col;
                         for (let i = 0; i < word.length; i++) {
                             const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                            cellDiv.classList.remove('correct');
                             cellDiv.classList.add('incorrect');
                             if (orientation === 'across') {
                                 c++;
@@ -640,7 +670,7 @@
                 document.querySelectorAll('.crossword-cell input').forEach(input => {
                     input.value = '';
                     const cellDiv = input.closest('.crossword-cell');
-                    cellDiv.classList.remove('correct', 'incorrect', 'active', 'highlight');
+                    cellDiv.classList.remove('correct', 'incorrect', 'active', 'highlight', 'correct-easy-mode', 'incorrect-easy-mode');
                 });
                 document.querySelectorAll('.clue-list li').forEach(li => {
                     li.classList.remove('active-clue');
@@ -664,8 +694,8 @@
                         if (input) {
                             input.value = word[i];
                             grid[r][c].char = word[i];
-                            cellDiv.classList.remove('incorrect');
-                            cellDiv.classList.add('correct');
+                            cellDiv.classList.remove('incorrect', 'correct-easy-mode', 'incorrect-easy-mode');
+                            cellDiv.classList.add('correct'); // Use main correct class for reveal
                         }
                         if (orientation === 'across') {
                             c++;
@@ -683,6 +713,35 @@
                 currentActiveCell = null;
                 currentWordOrientation = 'across';
                 showMessage('Puzzle revealed!', 'info');
+            });
+
+            easyModeBtn.addEventListener('click', () => {
+                isEasyMode = !isEasyMode;
+                easyModeBtn.textContent = `Easy Mode: ${isEasyMode ? 'ON' : 'OFF'}`;
+                easyModeBtn.classList.toggle('btn-primary', isEasyMode);
+                easyModeBtn.classList.toggle('btn-secondary', !isEasyMode);
+
+                // When switching modes, clear all current cell feedback
+                document.querySelectorAll('.crossword-cell').forEach(cell => {
+                    cell.classList.remove('correct', 'incorrect', 'correct-easy-mode', 'incorrect-easy-mode');
+                });
+
+                // Re-apply easy mode feedback if turning ON and cells have values
+                if (isEasyMode) {
+                    for (let r = 0; r < GRID_SIZE; r++) {
+                        for (let c = 0; c < GRID_SIZE; c++) {
+                            const cellData = grid[r][c];
+                            if (cellData && cellData.char) { // If it's an active cell and has a character
+                                const cellDiv = gridContainer.children[r * GRID_SIZE + c];
+                                if (cellData.char === cellData.correctChar) {
+                                    cellDiv.classList.add('correct-easy-mode');
+                                } else {
+                                    cellDiv.classList.add('incorrect-easy-mode');
+                                }
+                            }
+                        }
+                    }
+                }
             });
 
             // Message Box Function
