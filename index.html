@@ -9,8 +9,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            color: #334155;
+            background-color: #e6f1ea; /* Soft green tint */
+            color: #2c3e2c; /* Dark green/gray text */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,7 +23,7 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
-            background-color: #ffffff;
+            background-color: #ffffff; /* Keep inner white for contrast */
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -50,8 +50,8 @@
             grid-template-columns: repeat(8, minmax(0, 1fr)); /* 8 columns */
             grid-template-rows: repeat(8, minmax(0, 1fr));    /* 8 rows */
             gap: 1px;
-            background-color: #cbd5e1; /* Light border between cells */
-            border: 2px solid #64748b;
+            background-color: #a3c4a3; /* Medium green border between cells */
+            border: 2px solid #5a7b5a; /* Darker green main border */
             border-radius: 8px;
             overflow: hidden;
             max-width: 400px; /* Max size for the grid */
@@ -62,7 +62,7 @@
         .crossword-cell {
             width: 100%;
             height: 100%;
-            background-color: #e2e8f0; /* Blank cell background */
+            background-color: #f7fcf8; /* Very light green/off-white for active cells */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -71,27 +71,27 @@
             font-weight: bold;
             text-transform: uppercase;
             color: #1a202c;
-            border: none; /* No individual cell borders, controlled by grid gap */
+            border: none;
             box-sizing: border-box;
             outline: none;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
 
         .crossword-cell.active {
-            background-color: #bfdbfe; /* Active cell background */
-            box-shadow: inset 0 0 0 2px #3b82f6; /* Blue border */
+            background-color: #d1ead1; /* Light green highlight for active cell */
+            box-shadow: inset 0 0 0 2px #4a754a; /* Darker green border */
         }
 
         .crossword-cell.highlight {
-            background-color: #dbeafe; /* Highlighted word background */
+            background-color: #e8f5e8; /* Lighter green highlight for word */
         }
 
         .crossword-cell.correct {
-            background-color: #dcfce7; /* Correct cell background */
+            background-color: #c8e6c9; /* Pleasant green for correct */
         }
 
         .crossword-cell.incorrect {
-            background-color: #fee2e2; /* Incorrect cell background */
+            background-color: #fce8e8; /* Light red for incorrect */
         }
 
         .crossword-cell input {
@@ -113,11 +113,11 @@
             left: 2px;
             font-size: 0.55em;
             font-weight: normal;
-            color: #64748b;
+            color: #6a8c6a; /* Muted green */
         }
 
         .crossword-cell.blank {
-            background-color: #334155; /* Darker background for blank cells */
+            background-color: #3b5249; /* Darker, muted green/blue for blank cells */
             pointer-events: none; /* Make blank cells unclickable */
         }
 
@@ -132,7 +132,7 @@
             font-weight: bold;
             color: #1e293b;
             margin-bottom: 8px;
-            border-bottom: 2px solid #cbd5e1;
+            border-bottom: 2px solid #a3c4a3; /* Green border */
             padding-bottom: 4px;
         }
 
@@ -149,7 +149,7 @@
 
         .clue-list li.active-clue {
             font-weight: bold;
-            color: #3b82f6;
+            color: #4a754a; /* Darker green for active clue */
         }
 
         .buttons-container {
@@ -168,40 +168,44 @@
         }
 
         .btn-primary {
-            background-color: #3b82f6;
+            background-color: #4a754a; /* Darker green */
             color: #ffffff;
             border: none;
         }
         .btn-primary:hover {
-            background-color: #2563eb;
+            background-color: #3c613c;
             transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background-color: #e2e8f0;
-            color: #334155;
-            border: 1px solid #cbd5e1;
+            background-color: #e6f1ea; /* Matches body background */
+            color: #3b5249; /* Dark green/blue text */
+            border: 1px solid #a3c4a3; /* Green border */
         }
         .btn-secondary:hover {
-            background-color: #cbd5e1;
+            background-color: #d1ead1;
             transform: translateY(-1px);
         }
 
         #message-box {
             background-color: #fff;
-            border: 1px solid #d1d5db;
+            border: 1px solid #a3c4a3; /* Green border */
             border-radius: 8px;
             padding: 16px;
             margin-top: 20px;
             text-align: center;
             font-weight: bold;
-            color: #4b5563;
+            color: #3b5249; /* Dark green/blue text */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             display: none; /* Hidden by default */
         }
         #message-box.show {
             display: block;
         }
+        /* Specific message box colors */
+        #message-box.show.bg-green-100 { background-color: #e0ffe0; border-color: #8cce8c; color: #3b6b3b; }
+        #message-box.show.bg-red-100 { background-color: #ffe0e0; border-color: #cc8c8c; color: #6b3b3b; }
+        #message-box.show.bg-blue-100 { background-color: #e0e0ff; border-color: #8c8ccc; color: #3b3b6b; }
     </style>
 </head>
 <body>
@@ -245,15 +249,18 @@
             // Coordinates have been adjusted for a more compact and interlocked visual appearance.
             const words = [
                 // Across Words
-                { word: "METS", clueNum: 1, orientation: "across", start: { row: 0, col: 0 }, clue: "A '69 baseball phenomenon, defying all odds." },
-                { word: "JETS", clueNum: 2, orientation: "across", start: { row: 2, col: 0 }, clue: "The green-clad aerialists whose leader guaranteed a big one." },
-                { word: "RANGERS", clueNum: 3, orientation: "across", start: { row: 4, col: 0 }, clue: "Hockey's 'Broadway Blueshirts,' perpetually striving for the silver chalice." },
-                { word: "SIXTY", clueNum: 4, orientation: "across", start: { row: 6, col: 1 }, clue: "The numerical start of your father's birth decade, written." },
+                { word: "METS", clueNum: 1, orientation: "across", start: { row: 0, col: 0 }, clue: "Their '69 triumph, against all statistical logic, was truly this." },
+                { word: "GARDEN", clueNum: 5, orientation: "across", start: { row: 0, col: 2 }, clue: "The famous locale, colloquially known as 'The World's Most Famous Arena,' where a certain hockey team plays home games." },
+                { word: "JETS", clueNum: 2, orientation: "across", start: { row: 2, col: 0 }, clue: "The gridiron aerialists, whose lone guaranteed triumph ignited a fervor." },
+                { word: "RANGERS", clueNum: 3, orientation: "across", start: { row: 4, col: 0 }, clue: "The 'Broadway Blueshirts,' whose prolonged quest for a silver chalice concluded in '94." },
+                { word: "SIXTY", clueNum: 4, orientation: "across", start: { row: 6, col: 1 }, clue: "The numerical designation of the decade your father began, often associated with a 'swinging' vibe." },
+                { word: "BIGAPPLE", clueNum: 6, orientation: "across", start: { row: 7, col: 0 }, clue: "A well-known colloquialism for his cherished metropolis, referencing a large fruit." },
 
                 // Down Words
-                { word: "SHEA", clueNum: 1, orientation: "down", start: { row: 0, col: 2 }, clue: "Queens' storied baseball coliseum, a name now echoing with history." },
-                { word: "NAMATH", clueNum: 2, orientation: "down", start: { row: 0, col: 4 }, clue: "The confident signal-caller whose bold words became gridiron reality." },
-                { word: "QUEENS", clueNum: 3, orientation: "down", start: { row: 2, col: 0 }, clue: "The royal borough that houses the 'Amazin' baseball faithful." }
+                { word: "QUEENS", clueNum: 1, orientation: "down", start: { row: 0, col: 0 }, clue: "The royal borough that nurtured a celebrated baseball 'Miracle' and hosts another sporting complex." },
+                { word: "NAMATH", clueNum: 3, orientation: "down", start: { row: 2, col:2 }, clue: "The brash signal-caller whose audacious promise before Super Bowl III became legendary fact." },
+                { word: "SHEA", clueNum: 2, orientation: "down", start: { row: 0, col: 4 }, clue: "The former baseball diamond, a revered predecessor to a financial institution's namesake stadium in Flushing." },
+                { word: "BROADWAY", clueNum: 4, orientation: "down", start: { row: 0, col: 6 }, clue: "The theatrical avenue, also a descriptive moniker for his favorite hockey team's style and home." }
             ];
 
             const GRID_SIZE = 8; // 8x8 grid for consistency
