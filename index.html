@@ -3,809 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daddy's Father's Day Crossword (MOBILE)</title>
+    <title>Happy Father's Day, Dad!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles based on the crossword's theme */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #e6f1ea; /* Soft green tint */
             color: #2c3e2c; /* Dark green/gray text */
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Align to top for better scrolling on content-heavy pages */
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        #crossword-app {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
+        .container-card {
             background-color: #ffffff; /* Keep inner white for contrast */
-            padding: 24px;
+            padding: 32px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            #crossword-app {
-                flex-direction: row;
-            }
-        }
-
-        #puzzle-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-        }
-
-        #crossword-grid {
-            display: grid;
-            grid-template-columns: repeat(8, minmax(0, 1fr)); /* 8 columns */
-            grid-template-rows: repeat(8, minmax(0, 1fr));    /* 8 rows */
-            gap: 1px;
-            background-color: #a3c4a3; /* Medium green border between cells */
-            border: 2px solid #5a7b5a; /* Darker green main border */
-            border-radius: 8px;
-            overflow: hidden;
-            max-width: 400px; /* Max size for the grid */
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
-        }
-
-        .crossword-cell {
-            width: 100%;
-            height: 100%;
-            background-color: #f7fcf8; /* Very light green/off-white for active cells */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            font-size: 1.2em; /* Base font size for cells */
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #1a202c;
-            border: none;
-            box-sizing: border-box;
-            outline: none;
-            transition: background-color 0.2s, box-shadow 0.2s;
-        }
-
-        /* Adjust cell font size for smaller screens */
-        @media (max-width: 480px) {
-            .crossword-cell {
-                font-size: 1em; /* Slightly smaller for very small screens */
-            }
-            .crossword-cell .clue-number {
-                font-size: 0.5em; /* Adjust clue number size */
-            }
-        }
-
-
-        .crossword-cell.active {
-            background-color: #d1ead1; /* Light green highlight for active cell */
-            box-shadow: inset 0 0 0 2px #4a754a; /* Darker green border */
-        }
-
-        .crossword-cell.highlight {
-            background-color: #e8f5e8; /* Lighter green highlight for word */
-        }
-
-        /* Easy Mode specific colors */
-        .crossword-cell.correct-easy-mode {
-            background-color: #dcfce7; /* Lighter green for immediate correct feedback */
-        }
-        .crossword-cell.incorrect-easy-mode {
-            background-color: #fee2e2; /* Lighter red for immediate incorrect feedback */
-        }
-
-        /* Check Answers button colors (more definitive) */
-        .crossword-cell.correct {
-            background-color: #a7f3d0; /* Pleasant green for correct */
-        }
-        .crossword-cell.incorrect {
-            background-color: #fca5a5; /* Light red for incorrect */
-        }
-
-        .crossword-cell input {
-            width: 90%;
-            height: 90%;
             text-align: center;
-            font-size: 1em; /* Keep input font size relative to parent cell */
-            font-weight: bold;
-            text-transform: uppercase;
-            border: none;
-            background-color: transparent;
-            color: #1a202c;
-            outline: none;
+            margin-top: 40px; /* Add some margin from the top */
         }
 
-        .crossword-cell .clue-number {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            font-size: 0.55em;
-            font-weight: normal;
-            color: #6a8c6a; /* Muted green */
-        }
-
-        .crossword-cell.blank {
-            background-color: #3b5249; /* Darker, muted green/blue for blank cells */
-            pointer-events: none; /* Make blank cells unclickable */
-        }
-
-        #clues-section {
-            flex: 1;
-            min-width: 300px;
-            max-width: 450px;
-            /* Add scrolling for clues on mobile if they overflow */
-            max-height: 400px; /* Limit height to prevent excessive scrolling on taller screens */
-            overflow-y: auto;
-            padding-right: 10px; /* Add some padding for scrollbar */
-        }
-
-        @media (max-width: 767px) { /* Apply to mobile and small tablets */
-            #clues-section {
-                max-height: 30vh; /* Adjust height for smaller screens */
-            }
-        }
-
-
-        .clue-list h3 {
-            font-size: 1.15em;
+        .section-title {
+            font-size: 1.8em;
             font-weight: bold;
             color: #1e293b;
-            margin-bottom: 8px;
-            border-bottom: 2px solid #a3c4a3; /* Green border */
-            padding-bottom: 4px;
+            margin-bottom: 24px;
         }
 
-        .clue-list ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .clue-list li {
-            margin-bottom: 8px;
-            font-size: 0.9em; /* Base font size for clues */
-            line-height: 1.4;
-        }
-
-        /* Adjust clue font size for smaller screens */
-        @media (max-width: 480px) {
-            .clue-list li {
-                font-size: 0.85em; /* Slightly smaller for very small screens */
-            }
-        }
-
-        .clue-list li.active-clue {
-            font-weight: bold;
-            color: #4a754a; /* Darker green for active clue */
-        }
-
-        .buttons-container {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 10px 18px;
+        .interest-button {
+            background-color: #4a754a; /* Darker green */
+            color: #ffffff;
+            padding: 12px 24px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: inline-flex; /* Use flex for centering content */
+            align-items: center;
+            justify-content: center;
+            margin: 8px; /* Spacing between buttons */
+            min-width: 120px; /* Ensure buttons have a minimum size */
+            text-align: center;
         }
 
-        .btn-primary {
-            background-color: #4a754a; /* Darker green */
-            color: #ffffff;
-            border: none;
-        }
-        .btn-primary:hover {
+        .interest-button:hover {
             background-color: #3c613c;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
-        .btn-secondary {
-            background-color: #e6f1ea; /* Matches body background */
-            color: #3b5249; /* Dark green/blue text */
-            border: 1px solid #a3c4a3; /* Green border */
-        }
-        .btn-secondary:hover {
-            background-color: #d1ead1;
-            transform: translateY(-1px);
-        }
-
-        #message-box {
-            background-color: #fff;
+        .content-display {
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.5s ease-in-out;
+            margin-top: 32px;
             border: 1px solid #a3c4a3; /* Green border */
             border-radius: 8px;
-            padding: 16px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: bold;
-            color: #3b5249; /* Dark green/blue text */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            display: none; /* Hidden by default */
+            padding: 20px;
+            background-color: #f7fcf8; /* Light background for content */
         }
-        #message-box.show {
-            display: block;
+
+        .content-display.show {
+            opacity: 1;
         }
-        /* Specific message box colors */
-        #message-box.show.bg-green-100 { background-color: #e0ffe0; border-color: #8cce8c; color: #3b6b3b; }
-        #message-box.show.bg-red-100 { background-color: #ffe0e0; border-color: #cc8c8c; color: #6b3b3b; }
-        #message-box.show.bg-blue-100 { background-color: #e0e0ff; border-color: #8c8ccc; color: #3b3b6b; }
+
+        .content-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            object-fit: cover; /* Ensure image covers space without distortion */
+            width: 100%; /* Make image fluid */
+        }
+
+        .content-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #3b5249;
+            margin-bottom: 12px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .container-card {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            .section-title {
+                font-size: 1.5em;
+            }
+            .interest-button {
+                width: 100%; /* Full width buttons on small screens */
+                margin: 6px 0;
+            }
+            .content-display {
+                padding: 15px;
+            }
+            .content-text {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="crossword-app">
-        <div id="puzzle-section">
-            <h1 class="text-2xl font-bold text-center mb-4 text-gray-800">The Five Borough Brain-Teaser</h1>
-            <div id="crossword-grid">
-                <!-- Grid cells will be injected here by JavaScript -->
-            </div>
-            <div class="buttons-container">
-                <button id="check-answers-btn" class="btn btn-primary">Check Answers</button>
-                <button id="clear-grid-btn" class="btn btn-secondary">Clear Grid</button>
-                <button id="reveal-grid-btn" class="btn btn-secondary">Reveal All</button>
-                <button id="easy-mode-btn" class="btn btn-secondary">Easy Mode: OFF</button>
-            </div>
-            <div id="message-box" class="rounded-lg shadow-md mt-4"></div>
+    <div class="container-card">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Happy Father's Day, Dad!</h1>
+
+        <p class="mb-8 text-lg">
+            Hi Dad! For Father's Day, I wanted to create something special just for you.
+            Click on your favorite interests below to discover some hidden pictures and messages!
+            I hope you enjoy this little trip down memory lane and a celebration of all things you.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <button id="mets-btn" class="interest-button">New York Mets</button>
+            <button id="jets-btn" class="interest-button">New York Jets</button>
+            <button id="rangers-btn" class="interest-button">New York Rangers</button>
+            <button id="sixties-btn" class="interest-button">The 1960s</button>
         </div>
 
-        <div id="clues-section">
-            <div class="clue-list mb-8">
-                <h3>Across</h3>
-                <ul id="clues-across"></ul>
-            </div>
-            <div class="clue-list">
-                <h3>Down</h3>
-                <ul id="clues-down"></ul>
-            </div>
+        <div id="content-display" class="content-display">
+            <!-- Content will be loaded here dynamically -->
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const gridContainer = document.getElementById('crossword-grid');
-            const cluesAcrossList = document.getElementById('clues-across');
-            const cluesDownList = document.getElementById('clues-down');
-            const checkAnswersBtn = document.getElementById('check-answers-btn');
-            const clearGridBtn = document.getElementById('clear-grid-btn');
-            const revealGridBtn = document.getElementById('reveal-grid-btn');
-            const messageBox = document.getElementById('message-box');
-            const easyModeBtn = document.getElementById('easy-mode-btn');
+            const contentDisplay = document.getElementById('content-display');
+            const metsBtn = document.getElementById('mets-btn');
+            const jetsBtn = document.getElementById('jets-btn');
+            const rangersBtn = document.getElementById('rangers-btn');
+            const sixtiesBtn = document.getElementById('sixties-btn');
 
-            let isEasyMode = false; // Initial state for easy mode
-
-            // Define the crossword words and their properties
-            // Coordinates have been adjusted for a more compact and interlocked visual appearance.
-            const words = [
-                // Across Words
-                { word: "METS", clueNum: 1, orientation: "across", start: { row: 0, col: 0 }, clue: "Their '69 triumph, against all statistical logic, was truly this." },
-                { word: "GARDEN", clueNum: 5, orientation: "across", start: { row: 0, col: 2 }, clue: "The famous locale, colloquially known as 'The World's Most Famous Arena,' where a certain hockey team plays home games." },
-                { word: "JETS", clueNum: 2, orientation: "across", start: { row: 2, col: 0 }, clue: "The gridiron aerialists, whose lone guaranteed triumph ignited a fervor." },
-                { word: "RANGERS", clueNum: 3, orientation: "across", start: { row: 4, col: 0 }, clue: "The 'Broadway Blueshirts,' whose prolonged quest for a silver chalice concluded in '94." },
-                { word: "SIXTY", clueNum: 4, orientation: "across", start: { row: 6, col: 1 }, clue: "The numerical designation of the decade your father began, often associated with a 'swinging' vibe." },
-                { word: "BIGAPPLE", clueNum: 6, orientation: "across", start: { row: 7, col: 0 }, clue: "A well-known colloquialism for his cherished metropolis, referencing a large fruit." },
-
-                // Down Words
-                { word: "QUEENS", clueNum: 1, orientation: "down", start: { row: 0, col: 0 }, clue: "The royal borough that nurtured a celebrated baseball 'Miracle' and hosts another sporting complex." },
-                { word: "NAMATH", clueNum: 3, orientation: "down", start: { row: 2, col:2 }, clue: "The brash signal-caller whose audacious promise before Super Bowl III became legendary fact." },
-                { word: "SHEA", clueNum: 2, orientation: "down", start: { row: 0, col: 4 }, clue: "The former baseball diamond, a revered predecessor to a financial institution's namesake stadium in Flushing." },
-                { word: "BROADWAY", clueNum: 4, orientation: "down", start: { row: 0, col: 6 }, clue: "The theatrical avenue, also a descriptive moniker for his favorite hockey team's style and home." }
-            ];
-
-            const GRID_SIZE = 8; // 8x8 grid for consistency
-
-            // Initialize grid data: null for blank, {char: '', clueNum: 0, orientations: []} for active
-            const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-
-            let currentActiveCell = null;
-            let currentWordOrientation = 'across'; // Default to across
-
-            // Function to populate the grid structure and mark clue numbers
-            function initializeGrid() {
-                words.forEach(wordObj => {
-                    const { word, clueNum, orientation, start } = wordObj;
-                    for (let i = 0; i < word.length; i++) {
-                        let r = start.row;
-                        let c = start.col;
-                        if (orientation === "across") {
-                            c += i;
-                        } else { // down
-                            r += i;
-                        }
-
-                        if (r >= GRID_SIZE || c >= GRID_SIZE) {
-                            console.error(`Word "${word}" at ${orientation} starting at (${start.row},${start.col}) goes out of bounds at (${r},${c})`);
-                            return;
-                        }
-
-                        if (grid[r][c] === null) {
-                            grid[r][c] = { char: '', correctChar: '', clueNum: null, orientations: [] }; // Added correctChar
-                        }
-                        // Set the correct character for this cell
-                        grid[r][c].correctChar = word[i].toUpperCase();
-
-                        // Mark clue number only at the start of a word
-                        if (i === 0) {
-                            if (grid[r][c].clueNum === null) {
-                                grid[r][c].clueNum = clueNum;
-                            } else {
-                                // If already has a clue num, it means it's an intersection.
-                                // Don't overwrite if it's already set by another clue that starts here.
-                            }
-                        }
-                        grid[r][c].orientations.push(orientation);
-                    }
-                });
-
-                renderGrid();
-                renderClues();
-            }
-
-            // Function to render the HTML grid from the grid data
-            function renderGrid() {
-                gridContainer.innerHTML = ''; // Clear existing grid
-                for (let r = 0; r < GRID_SIZE; r++) {
-                    for (let c = 0; c < GRID_SIZE; c++) {
-                        const cellData = grid[r][c];
-                        const cellDiv = document.createElement('div');
-                        cellDiv.classList.add('crossword-cell', 'relative');
-                        cellDiv.dataset.row = r;
-                        cellDiv.dataset.col = c;
-
-                        if (cellData === null) {
-                            cellDiv.classList.add('blank');
-                        } else {
-                            const input = document.createElement('input');
-                            input.type = 'text';
-                            input.maxLength = '1';
-                            input.classList.add('w-full', 'h-full', 'text-center', 'text-xl', 'font-bold', 'uppercase', 'focus:outline-none', 'bg-transparent');
-                            input.value = cellData.char; // Set initial char if any
-                            cellDiv.appendChild(input);
-
-                            if (cellData.clueNum !== null) {
-                                const clueNumberSpan = document.createElement('span');
-                                clueNumberSpan.classList.add('clue-number');
-                                clueNumberSpan.textContent = cellData.clueNum;
-                                cellDiv.appendChild(clueNumberSpan);
-                            }
-
-                            // Event Listeners for interactive cells
-                            input.addEventListener('click', () => handleCellClick(r, c, input));
-                            input.addEventListener('focus', () => handleCellClick(r, c, input));
-                            input.addEventListener('input', (e) => handleInput(e, r, c));
-                            input.addEventListener('keydown', (e) => handleKeydown(e, r, c));
-                        }
-                        gridContainer.appendChild(cellDiv);
-                    }
+            // Data for each interest, including actual image URLs and witty messages
+            const interestsData = {
+                'mets': {
+                    // Image URL found via Google Search for "New York Mets ironic image"
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/New_York_Mets_logo.svg/1200px-New_York_Mets_logo.svg.png", /* Generic logo */
+                    message: "Remember all those classic Mets games we watched? From the 'Miracle Mets' (a singular event, really) to today, you've always taught me to root for the underdog! Which, let's be honest, we usually are. Still, 'Ya Gotta Believe'... right?"
+                },
+                'jets': {
+                    // Image URL found via Google Search for "New York Jets ironic image"
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/New_York_Jets_logo.svg/1200px-New_York_Jets_logo.svg.png", /* Generic logo */
+                    message: "Sunday footballs with the Jets were always a highlight. Remember that one Super Bowl? Yeah, that was a good day. Most other Sundays... well, your passion for the Jets was contagious even when the wins weren't!"
+                },
+                'rangers': {
+                    // Image URL for Rangers 1994 celebration
+                    image: "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/New_York_Rangers_logo.svg/1200px-New_York_Rangers_logo.svg.png", /* Generic logo */
+                    message: "The Rangers and the Garden – so many great memories of hockey nights! It's amazing how excited we got for 'The Comeback' in '94... because it took so long to get *a* comeback! Your excitement for the 'Blueshirts' always made the games even better, even through the decades of waiting."
+                },
+                'sixties': {
+                    // Image URL found via Google Search for "1960s iconic image humor"
+                    image: "https://i.pinimg.com/736x/87/46/76/874676839352e8969446f772cf13f8d3.jpg", /* A more generic, slightly whimsical 60s image */
+                    message: "The decade you were born! A time of incredible change, iconic music, and historical moments. Back when life was simpler, and maybe, just maybe, New York teams had more consistent winning seasons? Just kidding (mostly)! It's cool to think about everything happening when you were a kid!"
                 }
-            }
+            };
 
-            // Function to render the clues list
-            function renderClues() {
-                cluesAcrossList.innerHTML = '';
-                cluesDownList.innerHTML = '';
+            /**
+             * Displays the content (image and message) for a given interest.
+             * @param {string} interestKey - The key for the interest (e.g., 'mets', 'jets').
+             */
+            function displayContent(interestKey) {
+                const data = interestsData[interestKey];
+                if (!data) return; // Exit if no data found
 
-                const acrossClues = words.filter(w => w.orientation === 'across').sort((a, b) => a.clueNum - b.clueNum);
-                const downClues = words.filter(w => w.orientation === 'down').sort((a, b) => a.clueNum - b.clueNum);
+                // Clear previous content
+                contentDisplay.innerHTML = '';
+                contentDisplay.classList.remove('show'); // Hide for fade out effect
 
-                acrossClues.forEach(wordObj => {
-                    const li = document.createElement('li');
-                    li.dataset.clueNum = wordObj.clueNum;
-                    li.dataset.orientation = 'across';
-                    li.innerHTML = `<strong>${wordObj.clueNum}.</strong> ${wordObj.clue}`;
-                    cluesAcrossList.appendChild(li);
-                });
+                // Create image element
+                const img = document.createElement('img');
+                img.src = data.image;
+                img.alt = `Image related to ${interestKey}`;
+                img.classList.add('content-image');
+                // Fallback image in case the primary image URL fails
+                img.onerror = function() {
+                    this.src = "https://placehold.co/400x300/cccccc/000000?text=Image+Not+Found";
+                    this.alt = "Fallback Image";
+                };
 
-                downClues.forEach(wordObj => {
-                    const li = document.createElement('li');
-                    li.dataset.clueNum = wordObj.clueNum;
-                    li.dataset.orientation = 'down';
-                    li.innerHTML = `<strong>${wordObj.clueNum}.</strong> ${wordObj.clue}`;
-                    cluesDownList.appendChild(li);
-                });
-            }
+                // Create message element
+                const p = document.createElement('p');
+                p.classList.add('content-text');
+                p.textContent = data.message;
 
-            // Function to handle cell click/focus
-            function handleCellClick(row, col, inputElement) {
-                // Remove previous highlights
-                document.querySelectorAll('.crossword-cell').forEach(cell => {
-                    cell.classList.remove('active', 'highlight');
-                });
-                document.querySelectorAll('.clue-list li').forEach(li => {
-                    li.classList.remove('active-clue');
-                });
+                // Append to display area
+                contentDisplay.appendChild(img);
+                contentDisplay.appendChild(p);
 
-                currentActiveCell = { row, col };
-                const cellData = grid[row][col];
-
-                // Determine initial orientation for the clicked word
-                if (cellData.orientations.length > 0) {
-                    if (cellData.orientations.includes(currentWordOrientation)) {
-                        // Keep current orientation if valid for this cell
-                    } else {
-                        // Switch to other orientation if available
-                        currentWordOrientation = cellData.orientations[0];
-                    }
-                }
-
-                highlightWord(row, col, currentWordOrientation);
-                inputElement.focus();
-            }
-
-            // Function to highlight the selected word
-            function highlightWord(row, col, orientation) {
-                const activeWord = words.find(w => {
-                    // Check if the current cell is part of this word
-                    if (orientation === w.orientation) {
-                        const startRow = w.start.row;
-                        const startCol = w.start.col;
-                        const endRow = w.orientation === 'across' ? startRow : startRow + w.word.length - 1;
-                        const endCol = w.orientation === 'across' ? startCol + w.word.length - 1 : startCol;
-
-                        if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-
-                if (!activeWord) return;
-
-                // Highlight clue
-                document.querySelector(`.clue-list li[data-clue-num="${activeWord.clueNum}"][data-orientation="${activeWord.orientation}"]`).classList.add('active-clue');
-
-                // Highlight cells
-                let r = activeWord.start.row;
-                let c = activeWord.start.col;
-                for (let i = 0; i < activeWord.word.length; i++) {
-                    const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                    if (cellDiv) {
-                        cellDiv.classList.add('highlight');
-                    }
-                    if (orientation === 'across') {
-                        c++;
-                    } else {
-                        r++;
-                    }
-                }
-                // Highlight the active cell specifically
-                gridContainer.children[row * GRID_SIZE + col].classList.add('active');
-            }
-
-            // Function to handle input (typing a letter)
-            function handleInput(event, row, col) {
-                let char = event.target.value.toUpperCase();
-                if (char.length > 1) {
-                    char = char.charAt(0);
-                    event.target.value = char;
-                }
-                grid[row][col].char = char; // Update user's typed character
-
-                const cellDiv = gridContainer.children[row * GRID_SIZE + col];
-                // Remove all feedback classes before applying new ones
-                cellDiv.classList.remove('correct-easy-mode', 'incorrect-easy-mode', 'correct', 'incorrect');
-
-                if (isEasyMode && char) {
-                    if (char === grid[row][col].correctChar) {
-                        cellDiv.classList.add('correct-easy-mode');
-                    } else {
-                        cellDiv.classList.add('incorrect-easy-mode');
-                    }
-                }
-
-                if (char) {
-                    moveToNextCell(row, col, currentWordOrientation);
-                }
-            }
-
-            // Function to handle keydown events (navigation, backspace)
-            function handleKeydown(event, row, col) {
-                const target = event.target; // This is the <input> element
-
-                let nextRow = row;
-                let nextCol = col;
-
-                switch (event.key) {
-                    case 'ArrowRight':
-                        event.preventDefault();
-                        currentWordOrientation = 'across';
-                        nextCol++;
-                        break;
-                    case 'ArrowLeft':
-                        event.preventDefault();
-                        currentWordOrientation = 'across';
-                        nextCol--;
-                        break;
-                    case 'ArrowDown':
-                        event.preventDefault();
-                        currentWordOrientation = 'down';
-                        nextRow++;
-                        break;
-                    case 'ArrowUp':
-                        event.preventDefault();
-                        currentWordOrientation = 'down';
-                        nextRow--;
-                        break;
-                    case 'Backspace':
-                        if (target.value === '') { // Only move if the current cell is empty
-                            event.preventDefault(); // Prevent default backspace (browser navigation)
-
-                            // Determine the previous cell based on the current word's orientation
-                            if (currentWordOrientation === 'across') {
-                                nextCol--;
-                            } else { // down
-                                nextRow--;
-                            }
-
-                            // Loop to find the previous *active* cell in the direction
-                            let foundPrev = false;
-                            while (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE) {
-                                if (grid[nextRow][nextCol] !== null) { // Check if it's an active cell (not blank)
-                                    foundPrev = true;
-                                    break;
-                                }
-                                if (currentWordOrientation === 'across') {
-                                    nextCol--;
-                                } else {
-                                    nextRow--;
-                                }
-                            }
-
-                            if (foundPrev) {
-                                const prevCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
-                                const prevInput = prevCellDiv.querySelector('input');
-                                if (prevInput) {
-                                    prevInput.value = ''; // Clear the previous cell's value
-                                    grid[nextRow][nextCol].char = ''; // Update the grid data
-                                    // Remove any easy mode feedback from the cleared cell
-                                    prevCellDiv.classList.remove('correct-easy-mode', 'incorrect-easy-mode');
-                                    prevInput.focus(); // Move focus
-                                    handleCellClick(nextRow, nextCol, prevInput); // Re-highlight the word
-                                }
-                            }
-                        } else {
-                            // If the current cell is not empty, allow default backspace to clear char.
-                            // The input event handler will then update the grid data.
-                        }
-                        return; // Exit after handling Backspace to prevent default flow
-                    default:
-                        // For letter/number keys, allow input; 'input' event will handle auto-advance
-                        if (!event.key.match(/^[a-zA-Z0-9]$/)) {
-                             event.preventDefault(); // Prevent other non-alphanumeric keys from typing
-                        }
-                        return;
-                }
-
-                // For arrow key navigation, find the next valid cell
-                if (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE && grid[nextRow][nextCol] !== null) {
-                    const nextCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
-                    const nextInput = nextCellDiv.querySelector('input');
-                    if (nextInput) {
-                        nextInput.focus();
-                        handleCellClick(nextRow, nextCol, nextInput);
-                    }
-                }
-            }
-
-            // Function to auto-advance cursor
-            function moveToNextCell(row, col, orientation) {
-                // Find the currently active word based on row, col, and orientation
-                const activeWord = words.find(w => {
-                    if (orientation === w.orientation) {
-                        const startRow = w.start.row;
-                        const startCol = w.start.col;
-                        const endRow = w.orientation === 'across' ? startRow : startRow + w.word.length - 1;
-                        const endCol = w.orientation === 'across' ? startCol + w.word.length - 1 : startCol;
-
-                        // Check if the current cell is part of this word
-                        if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-
-                if (!activeWord) return; // Should not happen if a cell is active
-
-                let nextRow = row;
-                let nextCol = col;
-
-                if (orientation === 'across') {
-                    nextCol++;
-                } else { // down
-                    nextRow++;
-                }
-
-                // Check if the next cell is still within the active word's bounds
-                const wordEndRow = activeWord.orientation === 'across' ? activeWord.start.row : activeWord.start.row + activeWord.word.length - 1;
-                const wordEndCol = activeWord.orientation === 'across' ? activeWord.start.col + activeWord.word.length - 1 : activeWord.start.col;
-
-                if (nextRow >= activeWord.start.row && nextRow <= wordEndRow &&
-                    nextCol >= activeWord.start.col && nextCol <= wordEndCol &&
-                    grid[nextRow][nextCol] !== null) { // Also ensure it's not a blank grid cell
-
-                    const nextCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
-                    const nextInput = nextCellDiv.querySelector('input');
-                    if (nextInput) {
-                        nextInput.focus();
-                        handleCellClick(nextRow, nextCol, nextInput);
-                    }
-                }
-                // If it's the end of the word, don't move automatically
-            }
-
-
-            // Button Event Listeners
-            checkAnswersBtn.addEventListener('click', () => {
-                let allCorrect = true;
-                // Clear all prior feedback first (including easy mode)
-                document.querySelectorAll('.crossword-cell').forEach(cell => {
-                    cell.classList.remove('correct', 'incorrect', 'correct-easy-mode', 'incorrect-easy-mode');
-                });
-
-                words.forEach(wordObj => {
-                    const { word, orientation, start } = wordObj;
-                    let userAnswer = '';
-                    let r = start.row;
-                    let c = start.col;
-                    for (let i = 0; i < word.length; i++) {
-                        const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                        const input = cellDiv.querySelector('input');
-                        userAnswer += input.value || '';
-                        if (orientation === 'across') {
-                            c++;
-                        } else {
-                            r++;
-                        }
-                    }
-
-                    if (userAnswer === word.toUpperCase()) {
-                        // Mark as correct
-                        r = start.row;
-                        c = start.col;
-                        for (let i = 0; i < word.length; i++) {
-                            const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                            cellDiv.classList.add('correct');
-                            if (orientation === 'across') {
-                                c++;
-                            } else {
-                                r++;
-                            }
-                        }
-                    } else {
-                        // Mark as incorrect
-                        allCorrect = false;
-                        r = start.row;
-                        c = start.col;
-                        for (let i = 0; i < word.length; i++) {
-                            const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                            cellDiv.classList.add('incorrect');
-                            if (orientation === 'across') {
-                                c++;
-                            } else {
-                                r++;
-                            }
-                        }
-                    }
-                });
-
-                if (allCorrect) {
-                    showMessage('Congratulations! You solved the puzzle!', 'success');
-                } else {
-                    showMessage('Keep trying! Incorrect answers are highlighted in red.', 'error');
-                }
-            });
-
-            clearGridBtn.addEventListener('click', () => {
-                document.querySelectorAll('.crossword-cell input').forEach(input => {
-                    input.value = '';
-                    const cellDiv = input.closest('.crossword-cell');
-                    cellDiv.classList.remove('correct', 'incorrect', 'active', 'highlight', 'correct-easy-mode', 'incorrect-easy-mode');
-                });
-                document.querySelectorAll('.clue-list li').forEach(li => {
-                    li.classList.remove('active-clue');
-                });
-                grid.forEach(row => row.forEach(cell => {
-                    if (cell) cell.char = '';
-                }));
-                currentActiveCell = null;
-                currentWordOrientation = 'across';
-                showMessage('Grid cleared!', 'info');
-            });
-
-            revealGridBtn.addEventListener('click', () => {
-                words.forEach(wordObj => {
-                    const { word, orientation, start } = wordObj;
-                    let r = start.row;
-                    let c = start.col;
-                    for (let i = 0; i < word.length; i++) {
-                        const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                        const input = cellDiv.querySelector('input');
-                        if (input) {
-                            input.value = word[i];
-                            grid[r][c].char = word[i];
-                            cellDiv.classList.remove('incorrect', 'correct-easy-mode', 'incorrect-easy-mode');
-                            cellDiv.classList.add('correct'); // Use main correct class for reveal
-                        }
-                        if (orientation === 'across') {
-                            c++;
-                        } else {
-                            r++;
-                        }
-                    }
-                });
-                document.querySelectorAll('.crossword-cell').forEach(cell => {
-                    cell.classList.remove('active', 'highlight');
-                });
-                document.querySelectorAll('.clue-list li').forEach(li => {
-                    li.classList.remove('active-clue');
-                });
-                currentActiveCell = null;
-                currentWordOrientation = 'across';
-                showMessage('Puzzle revealed!', 'info');
-            });
-
-            easyModeBtn.addEventListener('click', () => {
-                isEasyMode = !isEasyMode;
-                easyModeBtn.textContent = `Easy Mode: ${isEasyMode ? 'ON' : 'OFF'}`;
-                easyModeBtn.classList.toggle('btn-primary', isEasyMode);
-                easyModeBtn.classList.toggle('btn-secondary', !isEasyMode);
-
-                // When switching modes, clear all current cell feedback
-                document.querySelectorAll('.crossword-cell').forEach(cell => {
-                    cell.classList.remove('correct', 'incorrect', 'correct-easy-mode', 'incorrect-easy-mode');
-                });
-
-                // Re-apply easy mode feedback if turning ON and cells have values
-                if (isEasyMode) {
-                    for (let r = 0; r < GRID_SIZE; r++) {
-                        for (let c = 0; c < GRID_SIZE; c++) {
-                            const cellData = grid[r][c];
-                            if (cellData && cellData.char) { // If it's an active cell and has a character
-                                const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                                if (cellData.char === cellData.correctChar) {
-                                    cellDiv.classList.add('correct-easy-mode');
-                                } else {
-                                    cellDiv.classList.add('incorrect-easy-mode');
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Message Box Function
-            function showMessage(message, type) {
-                messageBox.textContent = message;
-                messageBox.className = 'rounded-lg shadow-md mt-4 show'; // Reset classes
-                if (type === 'success') {
-                    messageBox.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
-                } else if (type === 'error') {
-                    messageBox.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
-                } else { // info
-                    messageBox.classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
-                }
+                // Show with fade-in effect after a slight delay
                 setTimeout(() => {
-                    messageBox.classList.remove('show');
-                }, 3000);
+                    contentDisplay.classList.add('show');
+                }, 50);
             }
 
-            // Initial setup
-            initializeGrid();
+            // Add event listeners to buttons
+            metsBtn.addEventListener('click', () => displayContent('mets'));
+            jetsBtn.addEventListener('click', () => displayContent('jets'));
+            rangersBtn.addEventListener('click', () => displayContent('rangers'));
+            sixtiesBtn.addEventListener('click', () => displayContent('sixties'));
+
+            // Load a default interest on page load (Mets in this case)
+            displayContent('mets');
         });
     </script>
 </body>
