@@ -458,109 +458,123 @@
 
             // Function to handle keydown events (navigation, backspace)
             function handleKeydown(event, row, col) {
-                const target = event.target;
-                const cells = Array.from(gridContainer.querySelectorAll('.crossword-cell:not(.blank)'));
-                const currentIndex = cells.indexOf(target.parentNode);
+                const target = event.target; // This is the <input> element
 
-                let nextCellIndex = -1;
+                let nextRow = row;
+                let nextCol = col;
 
                 switch (event.key) {
                     case 'ArrowRight':
                         event.preventDefault();
                         currentWordOrientation = 'across';
-                        nextCellIndex = currentIndex + 1;
+                        nextCol++;
                         break;
                     case 'ArrowLeft':
                         event.preventDefault();
                         currentWordOrientation = 'across';
-                        nextCellIndex = currentIndex - 1;
+                        nextCol--;
                         break;
                     case 'ArrowDown':
                         event.preventDefault();
                         currentWordOrientation = 'down';
-                        nextCellIndex = currentIndex + GRID_SIZE;
+                        nextRow++;
                         break;
                     case 'ArrowUp':
                         event.preventDefault();
                         currentWordOrientation = 'down';
-                        nextCellIndex = currentIndex - GRID_SIZE;
+                        nextRow--;
                         break;
                     case 'Backspace':
-                        // If cell is empty, move back and clear previous
-                        if (target.value === '') {
-                            event.preventDefault();
-                            nextCellIndex = currentIndex; // Stay on current cell
-                            if (currentWordOrientation === 'across' && currentIndex > 0) {
-                                nextCellIndex = currentIndex - 1;
-                            } else if (currentWordOrientation === 'down' && currentIndex >= GRID_SIZE) {
-                                nextCellIndex = currentIndex - GRID_SIZE;
+                        if (target.value === '') { // Only move if the current cell is empty
+                            event.preventDefault(); // Prevent default backspace (browser navigation)
+
+                            // Determine the previous cell based on the current word's orientation
+                            if (currentWordOrientation === 'across') {
+                                nextCol--;
+                            } else { // down
+                                nextRow--;
                             }
-                            if (nextCellIndex !== currentIndex && cells[nextCellIndex]) {
-                                const prevInput = cells[nextCellIndex].querySelector('input');
+
+                            // Check if the calculated previous cell is within bounds and an active cell
+                            if (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE && grid[nextRow][nextCol] !== null) {
+                                const prevCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
+                                const prevInput = prevCellDiv.querySelector('input');
                                 if (prevInput) {
-                                    prevInput.value = '';
-                                    grid[prevInput.dataset.row][prevInput.dataset.col].char = '';
-                                    prevInput.focus();
-                                    handleCellClick(parseInt(prevInput.dataset.row), parseInt(prevInput.dataset.col), prevInput);
+                                    prevInput.value = ''; // Clear the previous cell's value
+                                    grid[nextRow][nextCol].char = ''; // Update the grid data
+                                    prevInput.focus(); // Move focus
+                                    handleCellClick(nextRow, nextCol, prevInput); // Re-highlight the word
                                 }
                             }
-                        }
-                        break;
-                    default:
-                        // If it's a letter, allow normal input and then auto-advance (handled by input event)
-                        if (event.key.match(/^[a-zA-Z]$/)) {
-                            // Do nothing, let input event handle it
                         } else {
-                            event.preventDefault(); // Prevent other keys
+                            // If the current cell is not empty, allow default backspace to clear char.
+                            // The input event handler will then update the grid data.
                         }
-                        return; // Exit here if not handling navigation/backspace
+                        return; // Exit after handling Backspace to prevent default flow
+                    default:
+                        // For letter/number keys, allow input; 'input' event will handle auto-advance
+                        if (!event.key.match(/^[a-zA-Z0-9]$/)) {
+                             event.preventDefault(); // Prevent other non-alphanumeric keys from typing
+                        }
+                        return;
                 }
 
-                if (nextCellIndex !== -1 && cells[nextCellIndex] && !cells[nextCellIndex].classList.contains('blank')) {
-                    const nextInput = cells[nextCellIndex].querySelector('input');
+                // For arrow key navigation, find the next valid cell
+                if (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE && grid[nextRow][nextCol] !== null) {
+                    const nextCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
+                    const nextInput = nextCellDiv.querySelector('input');
                     if (nextInput) {
                         nextInput.focus();
-                        handleCellClick(parseInt(nextInput.dataset.row), parseInt(nextInput.dataset.col), nextInput);
+                        handleCellClick(nextRow, nextCol, nextInput);
                     }
-                } else if (nextCellIndex !== -1 && !cells[nextCellIndex]) {
-                    // Try to wrap around if hitting boundary, or simply stop
-                    // For now, simply stop at the boundary of active cells
                 }
             }
 
             // Function to auto-advance cursor
             function moveToNextCell(row, col, orientation) {
-                const cells = Array.from(gridContainer.querySelectorAll('.crossword-cell:not(.blank)'));
-                const currentInput = gridContainer.children[row * GRID_SIZE + col].querySelector('input');
-                const currentIndex = cells.indexOf(currentInput.parentNode);
+                // Find the currently active word based on row, col, and orientation
+                const activeWord = words.find(w => {
+                    if (orientation === w.orientation) {
+                        const startRow = w.start.row;
+                        const startCol = w.start.col;
+                        const endRow = w.orientation === 'across' ? startRow : startRow + w.word.length - 1;
+                        const endCol = w.orientation === 'across' ? startCol + w.word.length - 1 : startCol;
 
-                let nextCellElement = null;
+                        // Check if the current cell is part of this word
+                        if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+                if (!activeWord) return; // Should not happen if a cell is active
+
+                let nextRow = row;
+                let nextCol = col;
 
                 if (orientation === 'across') {
-                    for (let i = currentIndex + 1; i < cells.length; i++) {
-                        const cell = cells[i];
-                        if (parseInt(cell.dataset.row) === row) { // Stay on the same row
-                            nextCellElement = cell;
-                            break;
-                        }
-                    }
+                    nextCol++;
                 } else { // down
-                    for (let i = currentIndex + 1; i < cells.length; i++) {
-                        const cell = cells[i];
-                        if (parseInt(cell.dataset.col) === col) { // Stay on the same column
-                            nextCellElement = cell;
-                            break;
-                        }
-                    }
+                    nextRow++;
                 }
 
-                if (nextCellElement && !nextCellElement.classList.contains('blank')) {
-                    const nextInput = nextCellElement.querySelector('input');
+                // Check if the next cell is still within the active word's bounds
+                const wordEndRow = activeWord.orientation === 'across' ? activeWord.start.row : activeWord.start.row + activeWord.word.length - 1;
+                const wordEndCol = activeWord.orientation === 'across' ? activeWord.start.col + activeWord.word.length - 1 : activeWord.start.col;
+
+                if (nextRow >= activeWord.start.row && nextRow <= wordEndRow &&
+                    nextCol >= activeWord.start.col && nextCol <= wordEndCol &&
+                    grid[nextRow][nextCol] !== null) { // Also ensure it's not a blank grid cell
+
+                    const nextCellDiv = gridContainer.children[nextRow * GRID_SIZE + nextCol];
+                    const nextInput = nextCellDiv.querySelector('input');
                     if (nextInput) {
                         nextInput.focus();
-                        handleCellClick(parseInt(nextInput.dataset.row), parseInt(nextInput.dataset.col), nextInput);
+                        handleCellClick(nextRow, nextCol, nextInput);
                     }
                 }
+                // If it's the end of the word, don't move automatically
             }
 
 
