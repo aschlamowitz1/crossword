@@ -3,693 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New York Dad's Crossword</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>Patrick Bateman's Morning Ritual: The Checklist</title>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #e6f1ea; /* Soft green tint */
-            color: #2c3e2c; /* Dark green/gray text */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
         }
-
-        #crossword-app {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            background-color: #ffffff; /* Keep inner white for contrast */
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .container {
             max-width: 900px;
-            width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            #crossword-app {
-                flex-direction: row;
-            }
-        }
-
-        #puzzle-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-        }
-
-        #crossword-grid {
-            display: grid;
-            grid-template-columns: repeat(8, minmax(0, 1fr)); /* 8 columns */
-            grid-template-rows: repeat(8, minmax(0, 1fr));    /* 8 rows */
-            gap: 1px;
-            background-color: #a3c4a3; /* Medium green border between cells */
-            border: 2px solid #5a7b5a; /* Darker green main border */
+            margin: auto;
+            background: #fff;
+            padding: 30px;
             border-radius: 8px;
-            overflow: hidden;
-            max-width: 400px; /* Max size for the grid */
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
-
-        .crossword-cell {
-            width: 100%;
-            height: 100%;
-            background-color: #f7fcf8; /* Very light green/off-white for active cells */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            font-size: 1.2em;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #1a202c;
-            border: none;
-            box-sizing: border-box;
-            outline: none;
-            transition: background-color 0.2s, box-shadow 0.2s;
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
         }
-
-        .crossword-cell.active {
-            background-color: #d1ead1; /* Light green highlight for active cell */
-            box-shadow: inset 0 0 0 2px #4a754a; /* Darker green border */
-        }
-
-        .crossword-cell.highlight {
-            background-color: #e8f5e8; /* Lighter green highlight for word */
-        }
-
-        .crossword-cell.correct {
-            background-color: #c8e6c9; /* Pleasant green for correct */
-        }
-
-        .crossword-cell.incorrect {
-            background-color: #fce8e8; /* Light red for incorrect */
-        }
-
-        .crossword-cell input {
-            width: 90%;
-            height: 90%;
+        h1 {
             text-align: center;
-            font-size: 1em;
+            border-bottom: 3px solid #eee;
+        }
+        h2 {
+            font-size: 1.8em;
+            color: #34495e;
+        }
+        h3 {
+            font-size: 1.4em;
+            color: #46607d;
+        }
+        .time-block {
             font-weight: bold;
-            text-transform: uppercase;
-            border: none;
-            background-color: transparent;
-            color: #1a202c;
-            outline: none;
+            color: #e74c3c;
+            margin-top: 20px;
+            font-size: 1.1em;
         }
-
-        .crossword-cell .clue-number {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            font-size: 0.55em;
-            font-weight: normal;
-            color: #6a8c6a; /* Muted green */
-        }
-
-        .crossword-cell.blank {
-            background-color: #3b5249; /* Darker, muted green/blue for blank cells */
-            pointer-events: none; /* Make blank cells unclickable */
-        }
-
-        #clues-section {
-            flex: 1;
-            min-width: 300px;
-            max-width: 450px;
-        }
-
-        .clue-list h3 {
-            font-size: 1.15em;
-            font-weight: bold;
-            color: #1e293b;
-            margin-bottom: 8px;
-            border-bottom: 2px solid #a3c4a3; /* Green border */
-            padding-bottom: 4px;
-        }
-
-        .clue-list ul {
+        ul {
             list-style: none;
             padding: 0;
         }
-
-        .clue-list li {
-            margin-bottom: 8px;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
-
-        .clue-list li.active-clue {
-            font-weight: bold;
-            color: #4a754a; /* Darker green for active clue */
-        }
-
-        .buttons-container {
+        li {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            align-items: flex-start;
         }
-
-        .btn {
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: bold;
+        li input[type="checkbox"] {
+            margin-right: 15px;
+            min-width: 20px;
+            min-height: 20px;
+            transform: scale(1.2);
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
-        .btn-primary {
-            background-color: #4a754a; /* Darker green */
-            color: #ffffff;
-            border: none;
+        .step-details {
+            flex-grow: 1;
         }
-        .btn-primary:hover {
-            background-color: #3c613c;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background-color: #e6f1ea; /* Matches body background */
-            color: #3b5249; /* Dark green/blue text */
-            border: 1px solid #a3c4a3; /* Green border */
-        }
-        .btn-secondary:hover {
-            background-color: #d1ead1;
-            transform: translateY(-1px);
-        }
-
-        #message-box {
-            background-color: #fff;
-            border: 1px solid #a3c4a3; /* Green border */
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: bold;
-            color: #3b5249; /* Dark green/blue text */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            display: none; /* Hidden by default */
-        }
-        #message-box.show {
+        .step-details strong {
             display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
         }
-        /* Specific message box colors */
-        #message-box.show.bg-green-100 { background-color: #e0ffe0; border-color: #8cce8c; color: #3b6b3b; }
-        #message-box.show.bg-red-100 { background-color: #ffe0e0; border-color: #cc8c8c; color: #6b3b3b; }
-        #message-box.show.bg-blue-100 { background-color: #e0e0ff; border-color: #8c8ccc; color: #3b3b6b; }
+        .step-details em {
+            font-style: normal;
+            color: #555;
+            font-size: 0.9em;
+        }
+        .frequency {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #ddd;
+            margin: 40px 0;
+        }
     </style>
 </head>
 <body>
-    <div id="crossword-app">
-        <div id="puzzle-section">
-            <h1 class="text-2xl font-bold text-center mb-4 text-gray-800">The Five Borough Brain-Teaser</h1>
-            <div id="crossword-grid">
-                <!-- Grid cells will be injected here by JavaScript -->
-            </div>
-            <div class="buttons-container">
-                <button id="check-answers-btn" class="btn btn-primary">Check Answers</button>
-                <button id="clear-grid-btn" class="btn btn-secondary">Clear Grid</button>
-                <button id="reveal-grid-btn" class="btn btn-secondary">Reveal All</button>
-            </div>
-            <div id="message-box" class="rounded-lg shadow-md mt-4"></div>
-        </div>
+    <div class="container">
+        <h1>Patrick Bateman's Morning Ritual: The Checklist</h1>
+        <p style="text-align: center; font-style: italic; margin-bottom: 30px;">"You can always be thinner, look better."</p>
 
-        <div id="clues-section">
-            <div class="clue-list mb-8">
-                <h3>Across</h3>
-                <ul id="clues-across"></ul>
-            </div>
-            <div class="clue-list">
-                <h3>Down</h3>
-                <ul id="clues-down"></ul>
-            </div>
-        </div>
+        <p>This comprehensive routine is designed for optimal efficiency and a Bateman-esque pursuit of aesthetic perfection, integrating a challenging morning workout and meticulous grooming. Each step is deliberate, maximizing product efficacy and personal presentation.</p>
+        <p><strong>Goal Wake-Up Time: 4:00 AM (to be at work by 7:30-7:50 AM)</strong></p>
+
+        <hr>
+
+        <div class="time-block">Phase 1: Pre-Shower Preparation & Pre-Workout Boost (4:00 AM - 4:15 AM)</div>
+        <ul>
+            <li>
+                <input type="checkbox" id="step1">
+                <div class="step-details">
+                    <strong>1. Hydration & Energy</strong><br>
+                    <em>Product(s) Used:</em> Water (Optional: Pre-workout supplement / Small Carb Source)<br>
+                    <em>Detailed Action:</em> Immediately upon waking, drink a large glass of water. Optionally, consume a pre-workout supplement or a small, easily digestible carb source (e.g., half a banana) for gym fuel.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step2">
+                <div class="step-details">
+                    <strong>2. Cryotherapy De-Puffing</strong><br>
+                    <em>Product(s) Used:</em> Skin Gym - Stainless Steel Ice Roller<br>
+                    <em>Detailed Action:</em> Retrieve from freezer. Roll *meticulously* over the entire face, jawline, and under-eye area. Focus on lymphatic drainage, moving outwards and downwards.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step3">
+                <div class="step-details">
+                    <strong>3. Optional Pre-Workout Skin Prep</strong><br>
+                    <em>Product(s) Used:</em> Paula's Choice - SKIN BALANCING Oil-Reducing Cleanser (or Athea Oil Cleanser)<br>
+                    <em>Detailed Action:</em> If skin feels particularly greasy after sleep and before sweating at the gym, perform a quick cleanse. Rinse thoroughly.<br>
+                    <span class="frequency">Frequency: As needed (e.g., if skin feels overly oily)</span>
+                </div>
+            </li>
+        </ul>
+
+        <hr>
+
+        <div class="time-block">Phase 2: Gym Session & Quick Transition (4:15 AM - 5:35 AM)</div>
+        <ul>
+            <li>
+                <input type="checkbox" id="step4">
+                <div class="step-details">
+                    <strong>4. Gym Workout (Full Body/Cardio)</strong><br>
+                    <em>Product(s) Used:</em> N/A<br>
+                    <em>Detailed Action:</em> Engage in 60-75 minutes of intense full-body workout or cardio, including warm-up and cool-down. Focus on precision and effort.<br>
+                    <span class="frequency">Frequency: 3x per week (e.g., Mon, Wed, Fri)</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step5">
+                <div class="step-details">
+                    <strong>5. Travel to Shower/Home</strong><br>
+                    <em>Product(s) Used:</em> N/A<br>
+                    <em>Detailed Action:</em> Efficiently travel from gym back home/to shower. Minimize downtime.<br>
+                    <span class="frequency">Frequency: Daily (if gym is not at home)</span>
+                </div>
+            </li>
+        </ul>
+
+        <hr>
+
+        <div class="time-block">Phase 3: The Shower Ritual – Hair, Body, Shave & Body Hair Removal (5:35 AM - 6:00 AM)</div>
+        <ul>
+            <li>
+                <input type="checkbox" id="step6">
+                <div class="step-details">
+                    <strong>6. Hair Thinning Targeted Shampoo</strong><br>
+                    <em>Product(s) Used:</em> Bumble and Bumble Full Potential Hair Preserving Shampoo (or Nizoral Anti-Dandruff Shampoo 2% Ketoconazole for dandruff)<br>
+                    <em>Detailed Action:</em> Apply to wet hair, massage vigorously into scalp for 1-2 minutes to stimulate blood flow and allow active ingredients to penetrate. Rinse thoroughly.<br>
+                    <span class="frequency">Frequency: Daily (or alternate Nizoral 2-3x/week)</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step7">
+                <div class="step-details">
+                    <strong>7. Hair Preserving Conditioner</strong><br>
+                    <em>Product(s) Used:</em> Bumble and Bumble Full Potential Hair Preserving Conditioner<br>
+                    <em>Detailed Action:</em> Apply from mid-lengths to ends, leave for 1-2 minutes. Rinse thoroughly.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step8">
+                <div class="step-details">
+                    <strong>8. Body Cleansing & Exfoliation (Prep for Hair Removal)</strong><br>
+                    <em>Product(s) Used:</em> Aesop - Geranium Leaf Body Cleanser (Daily); Fresh - Brown Sugar Body Polish (2-3x/week)<br>
+                    <em>Detailed Action:</em> Lather daily body cleanser. On days you will shave/trim body hair, use the body polish generously on targeted areas to lift hairs and remove dead skin. Rinse thoroughly.<br>
+                    <span class="frequency">Frequency: Daily (Exfoliation: 2-3x/week)</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step9">
+                <div class="step-details">
+                    <strong>9. Body Hair Trimming & Shaving</strong><br>
+                    <em>Product(s) Used:</em> Body Groomer (e.g., Manscaped Lawn Mower, Philips Norelco Bodygroom); Multi-Blade Razor (e.g., Gillette Fusion5); Shaving Gel/Cream (e.g., Cremo Cooling Shave Cream)<br>
+                    <em>Detailed Action:</em> **Prep:** If hair is long, dry trim first. **In Shower:** Apply shaving gel/cream. **Shave:** Chest/Stomach/Shoulders/Back/Arms/Legs: Trim with 0.5-1mm guard, then shave against grain for smooth. **Trim:** Armpits/Groin: Use 1-6mm guard. Rinse thoroughly. (Refer to detailed instructions for specific areas/lengths for optimal cleanliness and minimal irritation).<br>
+                    <span class="frequency">Frequency: Shaving: Every 1-3 days (as needed); Trimming: Weekly/Bi-weekly</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step10">
+                <div class="step-details">
+                    <strong>10. Hot Towel & Face Shave Prep</strong><br>
+                    <em>Product(s) Used:</em> Truefitt & Hill - Ultimate Comfort Shaving Cream (or Proraso - Shaving Cream)<br>
+                    <em>Detailed Action:</em> While in shower, wet small towel with hot water, apply to face for 30-60 seconds. Immediately apply shaving cream and shave meticulously.<br>
+                    <span class="frequency">Frequency: Daily (if shaving face daily)</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step11">
+                <div class="step-details">
+                    <strong>11. Cold Water Rinse & Post-Shave Balm (Face)</strong><br>
+                    <em>Product(s) Used:</em> Proraso - After Shave Balm (Sensitive Skin, Green Tea & Oat)<br>
+                    <em>Detailed Action:</em> Splash face with cold water. Pat dry. Apply small amount of balm to shaved areas, gently patting.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+        </ul>
+
+        <hr>
+
+        <div class="time-block">Phase 4: Post-Shower Skincare Ritual – Precision Layering (6:00 AM - 6:30 AM)</div>
+        <ul>
+            <li>
+                <input type="checkbox" id="step12">
+                <div class="step-details">
+                    <strong>12. Post-Body Hair Removal Soothe & Prevent Ingrowns</strong><br>
+                    <em>Product(s) Used:</em> Tend Skin Solution (or Fur Ingrown Concentrate)<br>
+                    <em>Detailed Action:</em> Apply immediately to all areas where body hair was removed with a cotton pad or fingertips.<br>
+                    <span class="frequency">Frequency: On body hair removal days</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step13">
+                <div class="step-details">
+                    <strong>13. Body Moisturizer</strong><br>
+                    <em>Product(s) Used:</em> Aesop - Geranium Leaf Body Balm (or Kiehl's - Crème de Corps)<br>
+                    <em>Detailed Action:</em> Apply generously over entire body, ensuring all skin is hydrated and smooth.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step14">
+                <div class="step-details">
+                    <strong>14. Scalp Treatment (Leave-On)</strong><br>
+                    <em>Product(s) Used:</em> Topical Minoxidil (e.g., Rogaine 5% Foam/Liquid) or The Ordinary - Multi-Peptide Serum for Hair Density (or Bumble and Bumble Full Potential Hair Preserving Booster Hair Mist)<br>
+                    <em>Detailed Action:</em> Towel-dry hair lightly. Apply directly to thinning scalp areas, massage gently. Do NOT rinse.<br>
+                    <span class="frequency">Frequency: Daily (Minoxidil 2x/day recommended if used)</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step15">
+                <div class="step-details">
+                    <strong>15. Essence/First Treatment Essence</strong><br>
+                    <em>Product(s) Used:</em> SK-II - Facial Treatment Essence (or Cosrx - Advanced Snail 96 Mucin Power Essence)<br>
+                    <em>Detailed Action:</em> Pour a few drops into palms, gently press onto entire face and neck.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step16">
+                <div class="step-details">
+                    <strong>16. Hydrating Toner</strong><br>
+                    <em>Product(s) Used:</em> Kiehl's - Calendula Herbal Extract Alcohol-Free Toner (or Skin1004 Toner Pad)<br>
+                    <em>Detailed Action:</em> Apply with a quick swipe (pad) or gentle pat (liquid) over face and neck.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step17">
+                <div class="step-details">
+                    <strong>17. Primary Antioxidant Serum</strong><br>
+                    <em>Product(s) Used:</em> SkinCeuticals - C E Ferulic<br>
+                    <em>Detailed Action:</em> Apply 3-5 drops to face, neck, and décolletage. Press gently. Allow 30-60 seconds to absorb.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step18">
+                <div class="step-details">
+                    <strong>18. Soothing/Hydrating Ampoule</strong><br>
+                    <em>Product(s) Used:</em> Skin1004 Madagascar Centella Ampoule<br>
+                    <em>Detailed Action:</em> Apply a few drops and gently pat onto face. Allow to absorb.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step19">
+                <div class="step-details">
+                    <strong>19. Targeted Peptide Serum</strong><br>
+                    <em>Product(s) Used:</em> The Ordinary - Multi-Peptide + HA Serum<br>
+                    <em>Detailed Action:</em> Apply a few drops, focusing on areas of concern (e.g., fine lines). Pat in.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step20">
+                <div class="step-details">
+                    <strong>20. Eye Serum (Layer 1)</strong><br>
+                    <em>Product(s) Used:</em> Drunk Elephant - A-Shaba Complex Eye Serum<br>
+                    <em>Detailed Action:</em> Apply small amount around orbital bone, gently patting with ring finger.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step21">
+                <div class="step-details">
+                    <strong>21. Eye Cream (Layer 2)</strong><br>
+                    <em>Product(s) Used:</em> Your existing Japanese Undereye Cream (or Shiseido - Men Total Revitalizer Eye)<br>
+                    <em>Detailed Action:</em> Apply small, rice-grain sized amount over serum, pat until absorbed.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step22">
+                <div class="step-details">
+                    <strong>22. Moisturizer</strong><br>
+                    <em>Product(s) Used:</em> Your existing Skin1004 Soothing Cream (or Clinique - For Men Maximum Hydrator 72-Hour Auto-Replenishing Hydrator)<br>
+                    <em>Detailed Action:</em> Apply an even layer over face and neck.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step23">
+                <div class="step-details">
+                    <strong>23. High-SPF Broad-Spectrum Sunscreen (The Ultimate Shield)</strong><br>
+                    <em>Product(s) Used:</em> Supergoop! - Unseen Sunscreen SPF 40<br>
+                    <em>Detailed Action:</em> Apply generous amount (at least a quarter-teaspoon for face alone) as the very last step. Blend thoroughly and quickly.<br>
+                    <span class="frequency">Frequency: Daily (NON-NEGOTIABLE)</span>
+                </div>
+            </li>
+        </ul>
+
+        <hr>
+
+        <div class="time-block">Phase 5: Oral & Final Prep (6:30 AM - 7:00 AM)</div>
+        <ul>
+            <li>
+                <input type="checkbox" id="step24">
+                <div class="step-details">
+                    <strong>24. Advanced Oral Hygiene</strong><br>
+                    <em>Product(s) Used:</em> Marvis - Whitening Mint Toothpaste; Oral-B - iO Series Electric Toothbrush; Listerine (or BreathRx - Anti-Bacterial Mouth Rinse)<br>
+                    <em>Detailed Action:</em> Brush meticulously (electric toothbrush maximizes efficiency). Use mouthwash. Consider water flosser if desired for deeper clean.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step25">
+                <div class="step-details">
+                    <strong>25. Dress & Hair Styling</strong><br>
+                    <em>Product(s) Used:</em> N/A<br>
+                    <em>Detailed Action:</em> Dress quickly (clothes laid out previous night for efficiency). Perform any quick hair styling.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step26">
+                <div class="step-details">
+                    <strong>26. Quick Breakfast/Coffee & Final Mirror Check</strong><br>
+                    <em>Product(s) Used:</em> N/A<br>
+                    <em>Detailed Action:</em> Consume pre-made smoothie, protein bar, or quick coffee. Perform a final, discerning look in the mirror for any imperfections.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+            <li>
+                <input type="checkbox" id="step27">
+                <div class="step-details">
+                    <strong>27. Gather Work Items & Commute</strong><br>
+                    <em>Product(s) Used:</em> N/A<br>
+                    <em>Detailed Action:</em> Ensure all necessary items for work are gathered. Commence commute to arrive before 8:00 AM.<br>
+                    <span class="frequency">Frequency: Daily</span>
+                </div>
+            </li>
+        </ul>
+
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const gridContainer = document.getElementById('crossword-grid');
-            const cluesAcrossList = document.getElementById('clues-across');
-            const cluesDownList = document.getElementById('clues-down');
-            const checkAnswersBtn = document.getElementById('check-answers-btn');
-            const clearGridBtn = document.getElementById('clear-grid-btn');
-            const revealGridBtn = document.getElementById('reveal-grid-btn');
-            const messageBox = document.getElementById('message-box');
-
-            // Define the crossword words and their properties
-            // Coordinates have been adjusted for a more compact and interlocked visual appearance.
-            const words = [
-                // Across Words
-                { word: "METS", clueNum: 1, orientation: "across", start: { row: 0, col: 0 }, clue: "Their '69 triumph, against all statistical logic, was truly this." },
-                { word: "GARDEN", clueNum: 5, orientation: "across", start: { row: 0, col: 2 }, clue: "The famous locale, colloquially known as 'The World's Most Famous Arena,' where a certain hockey team plays home games." },
-                { word: "JETS", clueNum: 2, orientation: "across", start: { row: 2, col: 0 }, clue: "The gridiron aerialists, whose lone guaranteed triumph ignited a fervor." },
-                { word: "RANGERS", clueNum: 3, orientation: "across", start: { row: 4, col: 0 }, clue: "The 'Broadway Blueshirts,' whose prolonged quest for a silver chalice concluded in '94." },
-                { word: "SIXTY", clueNum: 4, orientation: "across", start: { row: 6, col: 1 }, clue: "The numerical designation of the decade your father began, often associated with a 'swinging' vibe." },
-                { word: "BIGAPPLE", clueNum: 6, orientation: "across", start: { row: 7, col: 0 }, clue: "A well-known colloquialism for his cherished metropolis, referencing a large fruit." },
-
-                // Down Words
-                { word: "QUEENS", clueNum: 1, orientation: "down", start: { row: 0, col: 0 }, clue: "The royal borough that nurtured a celebrated baseball 'Miracle' and hosts another sporting complex." },
-                { word: "NAMATH", clueNum: 3, orientation: "down", start: { row: 2, col:2 }, clue: "The brash signal-caller whose audacious promise before Super Bowl III became legendary fact." },
-                { word: "SHEA", clueNum: 2, orientation: "down", start: { row: 0, col: 4 }, clue: "The former baseball diamond, a revered predecessor to a financial institution's namesake stadium in Flushing." },
-                { word: "BROADWAY", clueNum: 4, orientation: "down", start: { row: 0, col: 6 }, clue: "The theatrical avenue, also a descriptive moniker for his favorite hockey team's style and home." }
-            ];
-
-            const GRID_SIZE = 8; // 8x8 grid for consistency
-
-            // Initialize grid data: null for blank, {char: '', clueNum: 0, orientations: []} for active
-            const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-
-            let currentActiveCell = null;
-            let currentWordOrientation = 'across'; // Default to across
-
-            // Function to populate the grid structure and mark clue numbers
-            function initializeGrid() {
-                words.forEach(wordObj => {
-                    const { word, clueNum, orientation, start } = wordObj;
-                    for (let i = 0; i < word.length; i++) {
-                        let r = start.row;
-                        let c = start.col;
-                        if (orientation === "across") {
-                            c += i;
-                        } else { // down
-                            r += i;
-                        }
-
-                        if (r >= GRID_SIZE || c >= GRID_SIZE) {
-                            console.error(`Word "${word}" at ${orientation} starting at (${start.row},${start.col}) goes out of bounds at (${r},${c})`);
-                            return;
-                        }
-
-                        if (grid[r][c] === null) {
-                            grid[r][c] = { char: '', clueNum: null, orientations: [] };
-                        }
-
-                        // Mark clue number only at the start of a word
-                        if (i === 0) {
-                            if (grid[r][c].clueNum === null) {
-                                grid[r][c].clueNum = clueNum;
-                            } else {
-                                // If already has a clue num, it means it's an intersection.
-                                // Don't overwrite if it's already set by another clue that starts here.
-                            }
-                        }
-                        grid[r][c].orientations.push(orientation);
-                    }
-                });
-
-                renderGrid();
-                renderClues();
-            }
-
-            // Function to render the HTML grid from the grid data
-            function renderGrid() {
-                gridContainer.innerHTML = ''; // Clear existing grid
-                for (let r = 0; r < GRID_SIZE; r++) {
-                    for (let c = 0; c < GRID_SIZE; c++) {
-                        const cellData = grid[r][c];
-                        const cellDiv = document.createElement('div');
-                        cellDiv.classList.add('crossword-cell', 'relative');
-                        cellDiv.dataset.row = r;
-                        cellDiv.dataset.col = c;
-
-                        if (cellData === null) {
-                            cellDiv.classList.add('blank');
-                        } else {
-                            const input = document.createElement('input');
-                            input.type = 'text';
-                            input.maxLength = '1';
-                            input.classList.add('w-full', 'h-full', 'text-center', 'text-xl', 'font-bold', 'uppercase', 'focus:outline-none', 'bg-transparent');
-                            input.value = cellData.char; // Set initial char if any
-                            cellDiv.appendChild(input);
-
-                            if (cellData.clueNum !== null) {
-                                const clueNumberSpan = document.createElement('span');
-                                clueNumberSpan.classList.add('clue-number');
-                                clueNumberSpan.textContent = cellData.clueNum;
-                                cellDiv.appendChild(clueNumberSpan);
-                            }
-
-                            // Event Listeners for interactive cells
-                            input.addEventListener('click', () => handleCellClick(r, c, input));
-                            input.addEventListener('focus', () => handleCellClick(r, c, input));
-                            input.addEventListener('input', (e) => handleInput(e, r, c));
-                            input.addEventListener('keydown', (e) => handleKeydown(e, r, c));
-                        }
-                        gridContainer.appendChild(cellDiv);
-                    }
-                }
-            }
-
-            // Function to render the clues list
-            function renderClues() {
-                cluesAcrossList.innerHTML = '';
-                cluesDownList.innerHTML = '';
-
-                const acrossClues = words.filter(w => w.orientation === 'across').sort((a, b) => a.clueNum - b.clueNum);
-                const downClues = words.filter(w => w.orientation === 'down').sort((a, b) => a.clueNum - b.clueNum);
-
-                acrossClues.forEach(wordObj => {
-                    const li = document.createElement('li');
-                    li.dataset.clueNum = wordObj.clueNum;
-                    li.dataset.orientation = 'across';
-                    li.innerHTML = `<strong>${wordObj.clueNum}.</strong> ${wordObj.clue}`;
-                    cluesAcrossList.appendChild(li);
-                });
-
-                downClues.forEach(wordObj => {
-                    const li = document.createElement('li');
-                    li.dataset.clueNum = wordObj.clueNum;
-                    li.dataset.orientation = 'down';
-                    li.innerHTML = `<strong>${wordObj.clueNum}.</strong> ${wordObj.clue}`;
-                    cluesDownList.appendChild(li);
-                });
-            }
-
-            // Function to handle cell click/focus
-            function handleCellClick(row, col, inputElement) {
-                // Remove previous highlights
-                document.querySelectorAll('.crossword-cell').forEach(cell => {
-                    cell.classList.remove('active', 'highlight');
-                });
-                document.querySelectorAll('.clue-list li').forEach(li => {
-                    li.classList.remove('active-clue');
-                });
-
-                currentActiveCell = { row, col };
-                const cellData = grid[row][col];
-
-                // Determine initial orientation for the clicked word
-                if (cellData.orientations.length > 0) {
-                    if (cellData.orientations.includes(currentWordOrientation)) {
-                        // Keep current orientation if valid for this cell
-                    } else {
-                        // Switch to other orientation if available
-                        currentWordOrientation = cellData.orientations[0];
-                    }
-                }
-
-                highlightWord(row, col, currentWordOrientation);
-                inputElement.focus();
-            }
-
-            // Function to highlight the selected word
-            function highlightWord(row, col, orientation) {
-                const activeWord = words.find(w => {
-                    // Check if the current cell is part of this word
-                    if (orientation === w.orientation) {
-                        const startRow = w.start.row;
-                        const startCol = w.start.col;
-                        const endRow = w.orientation === 'across' ? startRow : startRow + w.word.length - 1;
-                        const endCol = w.orientation === 'across' ? startCol + w.word.length - 1 : startCol;
-
-                        if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-
-                if (!activeWord) return;
-
-                // Highlight clue
-                document.querySelector(`.clue-list li[data-clue-num="${activeWord.clueNum}"][data-orientation="${activeWord.orientation}"]`).classList.add('active-clue');
-
-                // Highlight cells
-                let r = activeWord.start.row;
-                let c = activeWord.start.col;
-                for (let i = 0; i < activeWord.word.length; i++) {
-                    const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                    if (cellDiv) {
-                        cellDiv.classList.add('highlight');
-                    }
-                    if (orientation === 'across') {
-                        c++;
-                    } else {
-                        r++;
-                    }
-                }
-                // Highlight the active cell specifically
-                gridContainer.children[row * GRID_SIZE + col].classList.add('active');
-            }
-
-            // Function to handle input (typing a letter)
-            function handleInput(event, row, col) {
-                let char = event.target.value.toUpperCase();
-                if (char.length > 1) {
-                    char = char.charAt(0); // Take only the first character
-                    event.target.value = char;
-                }
-                grid[row][col].char = char;
-
-                // Auto-advance to the next cell in the current word's direction
-                if (char) { // Only advance if a character was actually typed
-                    moveToNextCell(row, col, currentWordOrientation);
-                }
-            }
-
-            // Function to handle keydown events (navigation, backspace)
-            function handleKeydown(event, row, col) {
-                const target = event.target;
-                const cells = Array.from(gridContainer.querySelectorAll('.crossword-cell:not(.blank)'));
-                const currentIndex = cells.indexOf(target.parentNode);
-
-                let nextCellIndex = -1;
-
-                switch (event.key) {
-                    case 'ArrowRight':
-                        event.preventDefault();
-                        currentWordOrientation = 'across';
-                        nextCellIndex = currentIndex + 1;
-                        break;
-                    case 'ArrowLeft':
-                        event.preventDefault();
-                        currentWordOrientation = 'across';
-                        nextCellIndex = currentIndex - 1;
-                        break;
-                    case 'ArrowDown':
-                        event.preventDefault();
-                        currentWordOrientation = 'down';
-                        nextCellIndex = currentIndex + GRID_SIZE;
-                        break;
-                    case 'ArrowUp':
-                        event.preventDefault();
-                        currentWordOrientation = 'down';
-                        nextCellIndex = currentIndex - GRID_SIZE;
-                        break;
-                    case 'Backspace':
-                        // If cell is empty, move back and clear previous
-                        if (target.value === '') {
-                            event.preventDefault();
-                            nextCellIndex = currentIndex; // Stay on current cell
-                            if (currentWordOrientation === 'across' && currentIndex > 0) {
-                                nextCellIndex = currentIndex - 1;
-                            } else if (currentWordOrientation === 'down' && currentIndex >= GRID_SIZE) {
-                                nextCellIndex = currentIndex - GRID_SIZE;
-                            }
-                            if (nextCellIndex !== currentIndex && cells[nextCellIndex]) {
-                                const prevInput = cells[nextCellIndex].querySelector('input');
-                                if (prevInput) {
-                                    prevInput.value = '';
-                                    grid[prevInput.dataset.row][prevInput.dataset.col].char = '';
-                                    prevInput.focus();
-                                    handleCellClick(parseInt(prevInput.dataset.row), parseInt(prevInput.dataset.col), prevInput);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        // If it's a letter, allow normal input and then auto-advance (handled by input event)
-                        if (event.key.match(/^[a-zA-Z]$/)) {
-                            // Do nothing, let input event handle it
-                        } else {
-                            event.preventDefault(); // Prevent other keys
-                        }
-                        return; // Exit here if not handling navigation/backspace
-                }
-
-                if (nextCellIndex !== -1 && cells[nextCellIndex] && !cells[nextCellIndex].classList.contains('blank')) {
-                    const nextInput = cells[nextCellIndex].querySelector('input');
-                    if (nextInput) {
-                        nextInput.focus();
-                        handleCellClick(parseInt(nextInput.dataset.row), parseInt(nextInput.dataset.col), nextInput);
-                    }
-                } else if (nextCellIndex !== -1 && !cells[nextCellIndex]) {
-                    // Try to wrap around if hitting boundary, or simply stop
-                    // For now, simply stop at the boundary of active cells
-                }
-            }
-
-            // Function to auto-advance cursor
-            function moveToNextCell(row, col, orientation) {
-                const cells = Array.from(gridContainer.querySelectorAll('.crossword-cell:not(.blank)'));
-                const currentInput = gridContainer.children[row * GRID_SIZE + col].querySelector('input');
-                const currentIndex = cells.indexOf(currentInput.parentNode);
-
-                let nextCellElement = null;
-
-                if (orientation === 'across') {
-                    for (let i = currentIndex + 1; i < cells.length; i++) {
-                        const cell = cells[i];
-                        if (parseInt(cell.dataset.row) === row) { // Stay on the same row
-                            nextCellElement = cell;
-                            break;
-                        }
-                    }
-                } else { // down
-                    for (let i = currentIndex + 1; i < cells.length; i++) {
-                        const cell = cells[i];
-                        if (parseInt(cell.dataset.col) === col) { // Stay on the same column
-                            nextCellElement = cell;
-                            break;
-                        }
-                    }
-                }
-
-                if (nextCellElement && !nextCellElement.classList.contains('blank')) {
-                    const nextInput = nextCellElement.querySelector('input');
-                    if (nextInput) {
-                        nextInput.focus();
-                        handleCellClick(parseInt(nextInput.dataset.row), parseInt(nextInput.dataset.col), nextInput);
-                    }
-                }
-            }
-
-
-            // Button Event Listeners
-            checkAnswersBtn.addEventListener('click', () => {
-                let allCorrect = true;
-                words.forEach(wordObj => {
-                    const { word, orientation, start } = wordObj;
-                    let userAnswer = '';
-                    let r = start.row;
-                    let c = start.col;
-                    for (let i = 0; i < word.length; i++) {
-                        const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                        const input = cellDiv.querySelector('input');
-                        userAnswer += input.value || '';
-                        if (orientation === 'across') {
-                            c++;
-                        } else {
-                            r++;
-                        }
-                    }
-
-                    if (userAnswer === word.toUpperCase()) {
-                        // Mark as correct
-                        r = start.row;
-                        c = start.col;
-                        for (let i = 0; i < word.length; i++) {
-                            const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                            cellDiv.classList.remove('incorrect');
-                            cellDiv.classList.add('correct');
-                            if (orientation === 'across') {
-                                c++;
-                            } else {
-                                r++;
-                            }
-                        }
-                    } else {
-                        // Mark as incorrect
-                        allCorrect = false;
-                        r = start.row;
-                        c = start.col;
-                        for (let i = 0; i < word.length; i++) {
-                            const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                            cellDiv.classList.remove('correct');
-                            cellDiv.classList.add('incorrect');
-                            if (orientation === 'across') {
-                                c++;
-                            } else {
-                                r++;
-                            }
-                        }
-                    }
-                });
-
-                if (allCorrect) {
-                    showMessage('Congratulations! You solved the puzzle!', 'success');
-                } else {
-                    showMessage('Keep trying! Incorrect answers are highlighted in red.', 'error');
-                }
-            });
-
-            clearGridBtn.addEventListener('click', () => {
-                document.querySelectorAll('.crossword-cell input').forEach(input => {
-                    input.value = '';
-                    const cellDiv = input.closest('.crossword-cell');
-                    cellDiv.classList.remove('correct', 'incorrect', 'active', 'highlight');
-                });
-                document.querySelectorAll('.clue-list li').forEach(li => {
-                    li.classList.remove('active-clue');
-                });
-                grid.forEach(row => row.forEach(cell => {
-                    if (cell) cell.char = '';
-                }));
-                currentActiveCell = null;
-                currentWordOrientation = 'across';
-                showMessage('Grid cleared!', 'info');
-            });
-
-            revealGridBtn.addEventListener('click', () => {
-                words.forEach(wordObj => {
-                    const { word, orientation, start } = wordObj;
-                    let r = start.row;
-                    let c = start.col;
-                    for (let i = 0; i < word.length; i++) {
-                        const cellDiv = gridContainer.children[r * GRID_SIZE + c];
-                        const input = cellDiv.querySelector('input');
-                        if (input) {
-                            input.value = word[i];
-                            grid[r][c].char = word[i];
-                            cellDiv.classList.remove('incorrect');
-                            cellDiv.classList.add('correct');
-                        }
-                        if (orientation === 'across') {
-                            c++;
-                        } else {
-                            r++;
-                        }
-                    }
-                });
-                document.querySelectorAll('.crossword-cell').forEach(cell => {
-                    cell.classList.remove('active', 'highlight');
-                });
-                document.querySelectorAll('.clue-list li').forEach(li => {
-                    li.classList.remove('active-clue');
-                });
-                currentActiveCell = null;
-                currentWordOrientation = 'across';
-                showMessage('Puzzle revealed!', 'info');
-            });
-
-            // Message Box Function
-            function showMessage(message, type) {
-                messageBox.textContent = message;
-                messageBox.className = 'rounded-lg shadow-md mt-4 show'; // Reset classes
-                if (type === 'success') {
-                    messageBox.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
-                } else if (type === 'error') {
-                    messageBox.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
-                } else { // info
-                    messageBox.classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
-                }
-                setTimeout(() => {
-                    messageBox.classList.remove('show');
-                }, 3000);
-            }
-
-            // Initial setup
-            initializeGrid();
-        });
-    </script>
 </body>
 </html>
